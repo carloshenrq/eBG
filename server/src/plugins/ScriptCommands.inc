@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @pc_block_si
  * @param 1 : 1= Block Moves, 2= Can Only Move
  * @param 2 : Value to Set
@@ -1286,6 +1286,7 @@ BUILDIN(bg_mapannounce_timer) {
 
 
 BUILDIN(bg_info) {
+	struct map_session_data* sd = script->rid2sd(st);
 	int bg_id = script_getnum(st, 2),
 		type = script_getnum(st, 3);
 	int bg_index;

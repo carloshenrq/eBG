@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Loads All Possible BGData.
  * @param sd Map_Session_Data
  */

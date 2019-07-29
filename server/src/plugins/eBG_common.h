@@ -1,4 +1,4 @@
-/**
+﻿/**
  * Common eBG File for Char/Map Server.
  */
 
@@ -53,7 +53,7 @@ const unsigned int bg_colors[4] = {
  * Guild Settings
  */
 /// Enable Virtual Guild
-#define VIRT_GUILD
+// #define VIRT_GUILD
 /// Total Number of Guilds
 #define TOTAL_GUILD 13
 /**
@@ -62,7 +62,7 @@ const unsigned int bg_colors[4] = {
  */
 #ifndef VIRT_GUILD
 	/// eBG Guild Start ID
-	#define EBG_GUILDSTART 901
+	#define EBG_GUILDSTART 10
 	/// eBG Guild End ID
 	#define EBG_GUILDEND (EBG_GUILDSTART + 12)
 #endif

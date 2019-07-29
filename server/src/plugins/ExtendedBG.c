@@ -1,4 +1,4 @@
-#include <stdio.h>
+﻿#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include <math.h>
@@ -1844,8 +1844,6 @@ void eBG_ChangeLeader(struct sd_p_data *data, int bg_id)
 				for (i = 0; i < MAX_BG_MEMBERS; i++) { /// Update other BG members
 					struct map_session_data *bg_sd;
 					struct sd_p_data *bg_data;
-					char output[100];
-					unsigned int color;
 					if ((bg_sd = bgd->members[i].sd) == NULL)
 						continue;
 					bg_data = pdb_search(bg_sd, false);
@@ -3272,6 +3270,10 @@ int bg_e_team_join(int bg_id, struct map_session_data *sd, int guild_id)
 			clif->hpmeter_single(sd->fd, pl_sd->bl.id, pl_sd->battle_status.hp, pl_sd->battle_status.max_hp);
 	}
 
+	// Limpa os buffs e debuffs ao entrar em um time de bg.
+	// [CarlosHenrqZ]
+	status->change_clear_buffs(&sd->bl, 3);
+
 	clif->bg_hp(sd);
 	clif->bg_xy(sd);
 	if (guild_id >= 0)
@@ -3284,7 +3286,9 @@ int bg_e_team_join(int bg_id, struct map_session_data *sd, int guild_id)
  **/
 void bg_guild_build_data(void) {
 	int i = 1, k, skill_id;
+#ifdef VIRT_GUILD
 	memset(&bg_guild, 0, sizeof(bg_guild));
+#endif
 	for (; i <= TOTAL_GUILD; i++) { // Emblem Data - Guild ID's
 		FILE* fp = NULL;
 		char path_db[256];
@@ -3298,10 +3302,10 @@ void bg_guild_build_data(void) {
 		}
 		g->guild_id = GET_EBG_GUILD_ID(j); // Last 13 ID's
 #else
-		g = guild->search(GET_EBG_GUILD_ID(i));
+		g = guild->search(GET_EBG_GUILD_ID(j));
 		if (g == NULL) {
-			ShowError("Guild %d Doesnt Exist\n", GET_EBG_GUILD_ID(i));
-			guild->request_info(GET_EBG_GUILD_ID(i));
+			ShowError("Guild %d Doesnt Exist\n", GET_EBG_GUILD_ID(j));
+			guild->request_info(GET_EBG_GUILD_ID(j));
 			continue;
 		}
 #endif
@@ -3344,10 +3348,12 @@ void bg_guild_build_data(void) {
 			}
 		}
 		else { // Other Data
+#ifdef VIRT_GUILD
 			snprintf(g->name, NAME_LENGTH, "Team %d", i - 3); // Team 1, Team 2 ... Team 10
 			strncpy(g->master, g->name, NAME_LENGTH);
 			snprintf(g->position[0].name, NAME_LENGTH, "%s Leader", g->name);
 			strncpy(g->position[1].name, g->name, NAME_LENGTH);
+#endif
 		}
 
 		sprintf(path_db, "db/emblems/bg_%d.ebm", i);
@@ -3364,6 +3370,7 @@ void bg_guild_build_data(void) {
 			}
 			fclose(fp);
 		}
+#ifdef VIRT_GUILD
 		switch(i) {
 			case 1:
 				strncpy(g->name, "Blue Team", NAME_LENGTH);
@@ -3384,6 +3391,7 @@ void bg_guild_build_data(void) {
 				strncpy(g->position[1].name, "Green Team", NAME_LENGTH);
 				break;
 		}
+#endif
 	}
 }
 
@@ -3652,8 +3660,8 @@ int eBG_Guildremove(struct map_session_data *sd, struct guild* g) {
 void send_bg_memberlist_(struct map_session_data **sd_)
 {
 	struct map_session_data *sd = *sd_;
-	struct battleground_data *bgd = bg->team_search(sd->bg_id);
 #ifdef VIRT_GUILD
+	struct battleground_data *bgd = bg->team_search(sd->bg_id);
 	struct bg_extra_info *bg_data_t;
 	if (bgd != NULL && (bg_data_t = bg_extra_create(bgd, false)) != NULL && bg_data_t->g != NULL)
 #else
